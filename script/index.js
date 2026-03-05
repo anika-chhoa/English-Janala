@@ -12,6 +12,12 @@ const removeActive=()=>{
   })
 }
 
+function pronounceWord(word) {
+  const utterance = new SpeechSynthesisUtterance(word);
+  utterance.lang = "en-EN"; // English
+  window.speechSynthesis.speak(utterance);
+}
+
 const manageLoading=(status)=>{
   if(status===true){
     document.getElementById("spinner").classList.remove("hidden");
@@ -109,7 +115,7 @@ const displayWords=(words)=>{
         </div>
         <div class="flex justify-between items-center">
           <button onclick="modalWords(${word.id})" class="btn bg-[#1a91ff10] hover:bg-[#1a91ff80]"><i class="fa-solid fa-circle-info"></i></button>
-          <button class="btn bg-[#1a91ff10] hover:bg-[#1a91ff80]"><i class="fa-solid fa-volume-high"></i></button>
+          <button onclick="pronounceWord('${word.word}')" class="btn bg-[#1a91ff10] hover:bg-[#1a91ff80]"><i class="fa-solid fa-volume-high"></i></button>
         </div>
       </div>
         `
@@ -131,3 +137,17 @@ const displayLesson = (lessons) => {
     lessonContainer.appendChild(div);
   });
 };
+
+document.getElementById("btn-search").addEventListener("click",()=>{
+  const input=document.getElementById("input-search");
+  const searchValue=input.value.trim().toLowerCase();
+  removeActive();
+  fetch("https://openapi.programming-hero.com/api/words/all")
+  .then(res=>res.json())
+  .then(json=>{
+    const allWords=json.data;
+    console.log(allWords)
+    const filterWords=allWords.filter(word=>word.word.toLowerCase().includes(searchValue));
+    displayWords(filterWords);
+  })
+})
